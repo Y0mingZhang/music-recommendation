@@ -1,8 +1,8 @@
 \documentclass{article}
 
+
 \PassOptionsToPackage{numbers, compress}{natbib}
 \usepackage[final]{neurips_2020}
-
     
 \usepackage[utf8]{inputenc} % allow utf-8 input
 \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
@@ -12,6 +12,7 @@
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % text color
 
 \title{ML Proposal}
 
@@ -34,8 +35,28 @@
 \maketitle
 
 \section{Proposal}
-Try a citation~\citep{bellmanDynamicProgramming1957}.
-Also a inline one \citet{bellmanDynamicProgramming1957} proposed.
+
+
+For our project, we would like to research recommender system algorithms applied 
+to music recommendation. Recommendation systems are pervasive in the modern 
+technological landscape, including professional (LinkedIn), consumer (Amazon), 
+entertainment (Netflix, Spotify), and even romantic settings (dating apps). These
+recommendation systems are often powered by collaborative filtering algorithms, 
+which can be based on approaches as simple as linear models, or as complex as 
+deep neural nets~\citep{Anelli_2022}. 
+\textcolor{red}{[Add additional citations?]} \\
+\textcolor{red}{[Insert info on music recommendation systems specifically]} \\
+
+Our project plans to use data on album reviews from the website albumoftheyear.org.
+Users can create profiles and rank albums from 0 to 100. From this website, we
+can create a dataset of $n$ users and $p$ albums. This matrix will likely be
+sparse as a given user is not likely to have ranked all albums. We will use this 
+dataset to conduct exploratory analysis and album recomendation modeling using
+techniques in class, suplemented by research from our literature review.\\
+\textcolor{red}{[Do we need more info on project description?]} \\
+
+Possible additional areas of interst include recommendation "explainability" and 
+challenges of dimensionality reduction in sparse matrices.~\citep{Afchar_2022}~\citep{Ling_2021}
 
 \bibliography{ref}
 \bibliographystyle{abbrvnat}
