@@ -6,13 +6,14 @@
     
 \usepackage[utf8]{inputenc} % allow utf-8 input
 \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
-\usepackage{hyperref}       % hyperlinks
-\usepackage{url}            % simple URL typesetting
-\usepackage{booktabs}       % professional-quality tables
-\usepackage{amsfonts}       % blackboard math symbols
-\usepackage{nicefrac}       % compact symbols for 1/2, etc.
-\usepackage{microtype}      % microtypography
-\usepackage{xcolor}         % text color
+\usepackage{hyperref}	    % hyperlinks
+\usepackage{url}	    % simple URL typesetting
+\usepackage{booktabs}	    % professional-quality tables
+\usepackage{amsfonts}	    % blackboard math symbols
+\usepackage{nicefrac}	    % compact symbols for 1/2, etc.
+\usepackage{microtype}	    % microtypography
+\usepackage{xcolor}	    % text color
+\usepackage{xspace}
 
 \title{ML Proposal}
 
@@ -30,34 +31,71 @@
   \texttt{\{zmeitus,yimingz0\}@uchicago.edu}
 }
 
+\newcommand{\aoty}{{\bf AOTY}\xspace}
+
 \begin{document}
 
 \maketitle
 
 \section{Proposal}
 
+For our project, we would like to research into recommender system algorithms
+ applied to music recommendation.
+Recommendation systems are pervasive in the modern technological landscape,
+ including professional (LinkedIn), consumer (Amazon), entertainment (Netflix,
+ Spotify), and even romantic settings (dating apps).
 
-For our project, we would like to research recommender system algorithms applied 
-to music recommendation. Recommendation systems are pervasive in the modern 
-technological landscape, including professional (LinkedIn), consumer (Amazon), 
-entertainment (Netflix, Spotify), and even romantic settings (dating apps). These
-recommendation systems are often powered by collaborative filtering algorithms, 
-which can be based on approaches as simple as linear models, or as complex as 
-deep neural nets~\citep{Anelli_2022}. 
-\textcolor{red}{[Add additional citations?]} \\
-\textcolor{red}{[Insert info on music recommendation systems specifically]} \\
+\paragraph{Overview}
+In this project, we hope to concretely frame the music recommendation problem
+ using tools we learned in the class.
+For example, one potential framing of music recommendation is regression: given
+ the list of preferences $x$ of a user on a set of known albums, we try predict
+ the score $y$ that the user would give to a new album.
+We will conduct exploratory analysis (e.g., user and album visualization) using
+ techniques we learned in class such as Singular Value Decomposition (SVD) will
+ be useful.
+One interesting question that such a visulization can help answer is how well
+ can music genres help summarize a user's preference by identifying clusters in
+ the visualization.
+We also hope to explore different recomendation modeling using techniques in
+ class, suplemented by research from our literature review.
+Possible additional areas of interst include recommendation "explainability"
+ and challenges of dimensionality reduction in sparse
+ matrices~\citep{Afchar_2022,Ling_2021}.
 
-Our project plans to use data on album reviews from the website albumoftheyear.org.
-Users can create profiles and rank albums from 0 to 100. From this website, we
-can create a dataset of $n$ users and $p$ albums. This matrix will likely be
-sparse as a given user is not likely to have ranked all albums. We will use this 
-dataset to conduct exploratory analysis and album recomendation modeling using
-techniques in class, suplemented by research from our literature review.\\
-\textcolor{red}{[Do we need more info on project description?]} \\
+\paragraph*{Data}
+We plan to build a dataset of album reviews, named \aoty, from the {\tt
+		 albumoftheyear} website.~\footnote{\url{https://www.albumoftheyear.org}} On
+ this site, users create profiles and rank albums from 0 to 100.
+By scraping data from this website, we can create a dataset of $n$ users and
+ $p$ albums.
+This matrix will likely have many missing values as a given user is not likely
+ to have ranked all albums.
+The {\em data sparsity} problem~\citep{suSurveyCollaborativeFiltering2009} in
+ the user-item matrix is a real challenge faced by many recommendation systems
+ in practice, and we believe this property makes \aoty a suitable testbed for
+ our research project.
 
-Possible additional areas of interst include recommendation "explainability" and 
-challenges of dimensionality reduction in sparse matrices.~\citep{Afchar_2022}~\citep{Ling_2021}
+\paragraph*{Literature Review}
+Collaborative Filtering (CF) is a technique of inferring about the preference
+ about one user using known information about other users.
+For example, if we know that Alice and Bob have similar taste in music (say
+ they both like alternative rock and dislike country music), then it seems
+ plausible that Bob would enjoy a new album that Alice rates highly.
+\citet{herlockerAlgorithmicFrameworkPerforming1999} makes this intuition
+ concrete by proposing a non-parametric neighborhood-based method that models
+ the preference of a user as a weighted combination of similar users.
 
-\bibliography{ref}
+Collaborative filtering techniques often assume some notion of ``similarity''
+ between users.
+Latent Dirichlet Allocation (LDA)~\citep{bleiLatentDirichletAllocation2001} is
+ a useful method to measure similarity between users.
+In LDA, we model users as a mixture of latent topics (e.g. music genres), and
+ measuring similarity between users can be made simple by measuring distance
+ between the corresponding mixtures.
+Modern collaborative filtering algorithms take advantage of deep learning, and
+ utilize deep neural nets~\citep{Anelli_2022}.
+
+\bibliography{ref,yiming}
 \bibliographystyle{abbrvnat}
 \end{document}
