@@ -1,21 +1,24 @@
-import os, json, functools
+import os, json, functools, itertools
 from typing import Any
 from os.path import join, dirname, basename
 from datetime import timezone
 from urllib.parse import urljoin
 from concurrent.futures import ThreadPoolExecutor
 
-import bs4
+import bs4, requests
 from bs4 import BeautifulSoup
 from dateutil import parser as datetime_parser
 from tqdm.auto import tqdm
+from urllib3.util import Retry
 from requests_html import HTMLSession
+from requests.adapters import HTTPAdapter
 
-output_dir = "data/albums"
+scrape_dir = "data/albums"
 domain = "https://www.albumoftheyear.org"
 album_url = "https://www.albumoftheyear.org/album/"
 
 session = HTMLSession()
+session.mount(domain, HTTPAdapter(max_retries=Retry(total=20, backoff_factor=0.5)))
 
 
 def convert_date_to_timestamp(s: str) -> int:
@@ -28,6 +31,16 @@ def fix_url(func: callable) -> callable:
     @functools.wraps(func)
     def f(url: str) -> Any:
         return func(urljoin(domain, url))
+
+    return f
+
+
+def pbar_update(func: callable) -> callable:
+    @functools.wraps(func)
+    def f(idx: int, pbar: tqdm) -> Any:
+        retval = func(idx)
+        pbar.update()
+        return retval
 
     return f
 
@@ -117,13 +130,24 @@ def scrape_album_reviews(url: str) -> list[dict[str, Any]]:
         return reviews
 
 
+@pbar_update
 def scrape_album(idx: int) -> None:
-    output_path = join(output_dir, f"{idx}.json")
+    output_path = join(scrape_dir, f"{idx}.json")
     if os.path.exists(output_path):
         return
 
     url = album_idx_to_url(idx)
-    r = session.get(url)
+    try:
+        r = session.get(url)
+    except UnicodeDecodeError:
+        return
+    except requests.exceptions.TooManyRedirects:
+        print(f"*** IDX = {idx} ***")
+        return
+
+    if r.url == domain:
+        return
+
     soup = BeautifulSoup(r.text, "html.parser")
     album = {"album_id": idx}
     album.update(parse_album_detail(soup))
@@ -142,12 +166,13 @@ def scrape_album(idx: int) -> None:
 
 
 def main():
-    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(scrape_dir, exist_ok=True)
     lo = 1
     hi = album_count()
 
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        list(tqdm(executor.map(scrape_album, range(1, hi + 1)), total=hi))
+    with tqdm(total=hi) as pbar:
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            list(executor.map(scrape_album, range(lo, hi + 1), itertools.repeat(pbar)))
 
     print("Done!")
 
