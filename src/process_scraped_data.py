@@ -1,4 +1,4 @@
-import os, glob, json
+import os, glob, json, random
 from os.path import join
 from collections import defaultdict
 
@@ -51,17 +51,19 @@ def summary(album_df: pd.DataFrame, user_df: pd.DataFrame) -> dict:
 
 def main():
     os.makedirs(processed_dir, exist_ok=True)
+    album_paths = sorted(glob.glob(join(scrape_dir, "*")))
     albums = []
-    lo = 1
-    hi = 10000
-    for i in range(lo, hi + 1):
+
+    for album_path in album_paths:
         try:
-            with open(join(scrape_dir, f"{i}.json")) as f:
+            with open(album_path) as f:
                 d = json.load(f)
                 d["reviews"] = process_reviews(d["reviews"])
-                albums.append(d)
-        except:
-            continue
+                if len(d["reviews"]) >= 5:
+                    albums.append(d)
+        except Exception as e:
+            print(album_path)
+            raise e
 
     album_df = pd.DataFrame(albums).set_index("album_id")
     album_df["num_reviews"] = album_df.reviews.apply(len)
