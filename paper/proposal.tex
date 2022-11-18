@@ -17,7 +17,8 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 
-\title{ML Proposal}
+% YZ: does this title work? feel free to change lol
+\title{Collaborative Filtering for Music Recommendation}
 
 % The \author macro works with any number of authors. There are two commands
 % used to separate the names and addresses of multiple authors: \And and \AND.
@@ -103,8 +104,8 @@ In this project, we plan to implement, extend and evaluate two CF algorithms,
 	      $B$ admits a degenerate solution $B = I$, under which the
 	      recommendation
 	      system always recommends items that the user already likes.
-	      To avoid such a solution, the author added an additional constraint that
-	       $\mathrm{diag}(B) = 0$.
+	      To avoid this solution, the author added an additional constraint that
+	       $\mathrm{diag}(B) = \mathbf{0}$.
 
 	      \item{\em \userknn}: Neighborhood-based recommendation methods
 	      essentially
@@ -127,7 +128,7 @@ Beyond common retrieval metrics (e.g., P/R/F1@$k$), we plan to consider the
  following evaluation metrics following
  \citet{anelliTopNRecommendationAlgorithms2022}:  \begin{itemize} \item {\em
              IC}: Item Coverage (IC) measures the percentage of distinct items that are ever
- recorded.
+ recommended.
 \item {\em Gini}: Gini coefficient of the distribution of recommended items
 measures the concentration of recommendation.
 \end{itemize}
