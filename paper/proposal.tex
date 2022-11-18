@@ -56,18 +56,19 @@
 
 \paragraph{Overview}
 In this project, we plan to study music recommendation using tools we learned
- in the class.
-Our paper assume explicit feedback data, where each user-item interaction
- provides an explicit rating.
+ in the class and Collaborative Filtering (CF) methods.
+Our paper assumes explicit feedback data, where each user-item interaction
+provides an explicit rating.
 For a set of users $\U$ and items $\I$, the user-item matrix $\X$ takes the
- form of $\X = \mathbb{R}^{\card{\U} \times \card{\I}}$, with potentially
- missing values when no rating is available.
+form of $\X = \mathbb{R}^{\card{\U} \times \card{\I}}$, with potentially
+missing values when no rating is available.
 Then, the recommendation problem boils down to identifying a set of ``good''
- items $\I_u$ for a user $u$.
-In the following paragraphs, we describe the dataset on which we explore music
- recommendation, and two algorithms we plan to implement.
-Finally, we outline evaluation metrics that measure the quality of
- recommendation systems.
+items $\I_u$ for a user $u$. While this problem can be solved with techniques covered in
+class material, such as low rank matrix completition, 
+CF techniques can provide better estimates of missing values.
+Below, we describe the dataset on which we explore music recommendation, and two
+algorithms we plan to implement. Finally, we outline evaluation metrics that measure the
+quality of recommendation systems.
 
 \paragraph*{Data}
 For this project, we have created a dataset of album reviews, named \aoty, by
@@ -76,8 +77,7 @@ On this website, users create profiles and rank albums from 0 to 100.
 After filtering out albums with $<5$ total reviews, \aoty has a total of 98k
  albums, and 38k users.
 The average album in the dataset has 143.1 reviews.
-Since a user is unlikely to have rated all albums, and an album is unlikely to
- be rated by users, the user-album matrix is extremely sparse.
+The user-album matrix is extremely sparse.
 For \aoty, the sparsity $s = 1.4 \times 10^{-3}$.
 The {\em data sparsity} problem~\citep{suSurveyCollaborativeFiltering2009} in
  the user-item matrix is a major challenge in most real-world recommendation
@@ -85,7 +85,7 @@ The {\em data sparsity} problem~\citep{suSurveyCollaborativeFiltering2009} in
  studying recommendation.
 
 \paragraph*{Methods}
-Collaborative Filtering (CF), the technique of inferring the preferences of one
+Collaborative Filtering, the technique of inferring the preferences of one
  user using known information about other users, is the dominant class of
  algorithm for recommendation systems.
 In this project, we plan to implement, extend and evaluate two CF algorithms,
@@ -105,7 +105,9 @@ In this project, we plan to implement, extend and evaluate two CF algorithms,
 	      recommendation
 	      system always recommends items that the user already likes.
 	      To avoid this solution, the author added an additional constraint that
-	       $\mathrm{diag}(B) = \mathbf{0}$.
+	      $\mathrm{diag}(B) = \mathbf{0}$. While this is a similar setup to the 
+        least squares approach we covered in class, $X$ and $B$ are matrices, 
+        not vectors. 
 
 	      \item{\em \userknn}: Neighborhood-based recommendation methods
 	      essentially
@@ -132,6 +134,15 @@ Beyond common retrieval metrics (e.g., P/R/F1@$k$), we plan to consider the
 \item {\em Gini}: Gini coefficient of the distribution of recommended items
 measures the concentration of recommendation.
 \end{itemize}
+
+Our goals for this project are to:
+\begin{itemize}
+  \item successfully implement these algorithms
+  \item demonstrate performance above common baselines (e.g., random reccomendation,
+  low rank matrix completion)  
+  \item analyze characteristics of recommendation, such as popularity bias, 
+concentration of recommendations, etc.  
+\end{itemize} 
 
 \newpage
 \bibliography{ref,yiming}
