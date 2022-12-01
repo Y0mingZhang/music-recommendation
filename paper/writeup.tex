@@ -1,0 +1,153 @@
+\documentclass{article}
+
+
+\PassOptionsToPackage{numbers, compress}{natbib}
+\usepackage[preprint]{neurips_2020}
+    
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}	    % hyperlinks
+\usepackage{url}	    % simple URL typesetting
+\usepackage{booktabs}	    % professional-quality tables
+\usepackage{amsfonts}	    % blackboard math symbols
+\usepackage{nicefrac}	    % compact symbols for 1/2, etc.
+\usepackage{microtype}	    % microtypography
+\usepackage{xcolor}	    % text color
+\usepackage{xspace}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% YZ: does this title work? feel free to change lol
+\title{Collaborative Filtering for Music Recommendation}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+\author{
+  Zander Meitus \qquad Yiming Zhang \\
+  University of Chicago \\
+  \texttt{\{zmeitus,yimingz0\}@uchicago.edu}
+}
+
+\newcommand{\aoty}{{\bf AOTY}\xspace}
+\DeclareMathOperator{\X}{\mathit{X}}
+\DeclareMathOperator{\U}{\mathcal{U}}
+\DeclareMathOperator{\I}{\mathcal{I}}
+\newcommand{\card}[1]{\ensuremath{\lvert {#1} \rvert}}
+\newcommand{\easer}{$\text{EASE}^\text{R}$}
+\newcommand{\userknn}{UserKNN\xspace}
+\newcommand{\norm}[1]{\ensuremath{\lVert #1 \rVert}}
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+In this project, we study music recommendation using tools we learned
+ in the class and Collaborative Filtering (CF) methods.
+Collaborative Filtering performs matrix completion by leveraging
+user-level and album-level similarities:
+for a set of users $\U$ and items $\I$, the user-item matrix $\X$ takes the
+form of $\X = \mathbb{R}^{\card{\U} \times \card{\I}}$, with potentially
+missing values when no rating is available.
+Then, the recommendation problem boils down to identifying a set of ``good''
+items $\I_u$ for a user $u$.
+
+To study the problem of music recommendation, we create a new dataset (\aoty) as
+a testbed for music recommendation.
+We chose two recommendation algorithms, \easer~\citep{steckEmbarrassinglyShallowAutoencoders2019}
+and \userknn~\citep{resnickGroupLensOpenArchitecture1994} to implement, for their state-of-the-art
+performance and computational tractability demonstrated by a recent survey~\citep{anelliTopNRecommendationAlgorithms2022}.
+Then, we evalaute the recommendation performance of both algorithms on \aoty.
+Both \easer and \userknn show strong recommendation performance on \aoty.
+On a heldout test set, \easer achieves an F1@20 score of 27.0, an impressive score
+considering there are over 8k potential albums.
+% Add a sentence for \userknn later.
+
+
+\section{Method}
+Collaborative Filtering, the technique of inferring the preferences of one
+ user using known information about other users, is the dominant class of
+ algorithm for recommendation systems.
+In this project, we plan to implement, extend and evaluate two CF algorithms,
+ \easer and \userknn, demonstrated as among the state-of-the-art in a
+ comprehensive study by \citet{anelliTopNRecommendationAlgorithms2022}.
+
+\begin{itemize}
+	\item {\em \easer}:
+	      \easer~\citep{steckEmbarrassinglyShallowAutoencoders2019}
+	      is a linear model parameterized by a item-item matrix $B \in
+		      \mathbb{R}^{\card{\I} \times \card{\I}}$.
+	      The weights $B$ are optimized with respect to the simple objective $\min_B
+		       \norm{\X - X B}_F^2 + \lambda \cdot \norm{B}^2$.
+	      The first term minimizes the {\em reconstruction cost}, while the second term
+	       is the common $L_2$ regularizer, encouraging $B$ to be low-rank.
+	      $B$ admits a degenerate solution $B = I$, under which the
+	      recommendation
+	      system always recommends items that the user already likes.
+	      To avoid this solution, the author added an additional constraint that
+	      $\mathrm{diag}(B) = \mathbf{0}$. While this is a similar setup to the 
+        least squares approach we covered in class, $X$ and $B$ are matrices, 
+        not vectors. 
+
+	      \item{\em \userknn}: Neighborhood-based recommendation methods
+	      essentially
+	      treat the preference of a user $u$ as a weighted sum of
+	      preferences of other
+	      users under some notion of similarity.
+	      For a pair of users $u, v$,
+	       \userknn~\citep{resnickGroupLensOpenArchitecture1994} measures the similarity
+	       between users with the correlation coefficient $r_{uv}$ between items that $u$
+	       and $v$ both rated.
+	      The predicted score for an item is the weighted sum of ratings of similar
+	       users, after adjusting for the ``baseline rating'' that the user gives to an
+	       average item.
+\end{itemize}
+
+\section{Experimental Setup}
+\paragraph*{Data Curation}
+For this project, we have created a dataset of album reviews, named \aoty, by
+ scraping data from \url{https://www.albumoftheyear.org}.
+On this website, users create profiles and rank albums from 0 to 100.
+After filtering out albums with $<5$ total reviews, \aoty has a total of 98k
+ albums, and 38k users.
+The average album in the dataset has 143.1 reviews.
+The user-album matrix is extremely sparse.
+For \aoty, the sparsity $s = 1.4 \times 10^{-3}$.
+The {\em data sparsity} problem~\citep{suSurveyCollaborativeFiltering2009} in
+ the user-item matrix is a major challenge in most real-world recommendation
+ problems, and we believe this property makes \aoty a suitable testbed for
+ studying recommendation.
+
+\paragraph*{Setup and Evaluation}
+We are going to evaluate the recommendation systems on a test set with heldout
+ users from training.
+Beyond common retrieval metrics (e.g., P/R/F1@$k$), we plan to consider the
+ following evaluation metrics following
+ \citet{anelliTopNRecommendationAlgorithms2022}:  \begin{itemize} \item {\em
+             IC}: Item Coverage (IC) measures the percentage of distinct items that are ever
+ recommended.
+\item {\em Gini}: Gini coefficient of the distribution of recommended items
+measures the concentration of recommendation.
+\end{itemize}
+
+Our goals for this project are to:
+\begin{itemize}
+  \item successfully implement these algorithms
+  \item demonstrate performance above common baselines (e.g., random reccomendation,
+  low rank matrix completion)  
+  \item analyze characteristics of recommendation, such as popularity bias, 
+concentration of recommendations, etc.  
+\end{itemize} 
+
+\section{Results}
+
+\newpage
+\bibliography{ref,yiming}
+\bibliographystyle{abbrvnat}
+\end{document}
