@@ -4,6 +4,7 @@ user_knn.py
 Class instance of userKNN model from GroupLens paper.
 '''
 import random
+import json, argparse
 import numpy as np
 import pandas as pd
 
@@ -31,7 +32,7 @@ class UserKNN:
         
         Methods:
             gen_valid_idx: create list of tuple (i, j) that index cells with entries
-            train_test_split: TODO
+            split_test_weak: TODO
             gen_corrcoef: TODO
             gen_preds: TODO
         '''
@@ -66,7 +67,7 @@ class UserKNN:
         else:
             self.A_valid_idx = list(zip(valid_i, valid_j))
     
-    def train_test_split(self, s=37, test_size=0.2):
+    def split_test_weak(self, s=37, test_size=0.2):
         '''
         Split A into train and test data, including omission mask for test
 
@@ -100,17 +101,10 @@ class UserKNN:
             self.mu = np.nanmean(self.A_prime, axis=0)
 
     def gen_corrcoef(self, strong=False):
-        # Numpy version of corrcoef with NaN's gives abs. values greater than 1
-        # perhaps because np.ma.corrcoef doesn't work properly
-        # see https://github.com/numpy/numpy/issues/15601
-        # self.R = np.ma.corrcoef(np.ma.masked_invalid(self.A), rowvar=False).data
         if strong:
             A = pd.DataFrame(self.A)
-            #D0 = np.ones([self.B.shape[0], self.B.shape[0]])
-            #np.fill_diagonal(D0, 0)
-            #BD0 = pd.DataFrame(self.B * D0)
             B = pd.DataFrame(self.B)
-            self.R_strong = B.apply(lambda s: A.corrwith(s))
+            self.R_strong = B.apply(lambda s: A.corrwith(s)).to_numpy()
         else:
             self.R = pd.DataFrame(self.A_prime).corr().to_numpy()
             np.fill_diagonal(self.R, 0)
