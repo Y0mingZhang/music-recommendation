@@ -77,9 +77,40 @@ Both \easer and \userknn show strong recommendation performance on \aoty.
 On a heldout test set, \easer achieves an F1@20 score of 27.0, an impressive
  score considering there are over 8k potential albums.
 % Add a sentence for \userknn later.
+\zander{add lit review}
+\section{Literature Review}
+Collaborative filtering recommendation systems have been a major focus of machine learning
+for several decades, with applications in commerce, entertainment, professional networking and beyond.
+In recommendation settings, observations for a given user are often sparse, and the model
+is tasked with predicting user preferences without much training data for the particular
+user. 
+There are a variety of model families that are well-suited to this task, including neighborhood-based, 
+linear, matrix factorization, and neural models, among others \citep{anelliTopNRecommendationAlgorithms2022}. 
+Beyond computational complexity and performance on a given task, the model families differ
+in the types of tasks they are most adept at handling. For example, some algorthmic families
+are better at handling implicit feedback datasets (where a value of 1 indicates a user
+interaction and a 0 indicates no user interaction), while others handle explicit feedback
+(where a user gives an item a rating on an ordinal or continuos scale) \citep{steckEmbarrassinglyShallowAutoencoders2019}.
+
+As \citet{Schedl2018} illustrate, recommendation for music has unique attributes from other
+recommendation tasks. Individual songs last minutes, while other common recommendation items
+like movies or books are consumed over a much longer time period. Songs are consumed sequentially, 
+where the particular order is meaningful. A given music catalog may contains tens of millions. 
+Schedl et. al. argue that because of music's unique attributes, it is worthwhile 
+studying recomendation systems when applied to music
+ in isolation \citep{Schedl2018}. 
+
+Our study is unique from existing music recommendation systems work 
+ both in its application and the dataset. Our unit of recommendation is an album, while
+ most commercial music recommendation systems operate at the song level \citep{Schedl2018}. 
+ This distinction is important in an era where music critics and fans bemoan how the "endless mix-tape" of song recommendation
+algorithms detracts from the experience of listening to an album from start to finish \citep{thoth2018, hilton2013}. 
+The dataset we've compiled and curated from aoty.org provides explicit feedback from 
+users at the album level, which enables us to research performance differences in models
+intended for explicit and implicit feedback. 
+
 
 \section{Method}
-\zander{add lit review}
 Collaborative Filtering, the technique of inferring the preferences of one user
  using known information about other users, is the dominant class of algorithm
  for recommendation systems.
