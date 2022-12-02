@@ -47,6 +47,7 @@
 \newcommand{\norm}[1]{\ensuremath{\lVert #1 \rVert}}
 \newcommand{\transpose}[1]{{#1}^\mathsf{T}}
 \newcommand{\yiming}[1]{\textcolor{violet}{[#1 ---\textsc{YZ}]}}
+\newcommand{\zander}[1]{\textcolor{blue}{[#1 ---\textsc{ZM}]}}
 \newcommand{\secref}[1]{\S\ref{#1}}
 
 \begin{document}
@@ -78,6 +79,7 @@ On a heldout test set, \easer achieves an F1@20 score of 27.0, an impressive
 % Add a sentence for \userknn later.
 
 \section{Method}
+\zander{add lit review}
 Collaborative Filtering, the technique of inferring the preferences of one user
  using known information about other users, is the dominant class of algorithm
  for recommendation systems.
@@ -135,6 +137,17 @@ For a pair of users $u, v$,
 The predicted score for an item is the weighted sum of ratings of similar
  users, after adjusting for the ``baseline rating'' that the user gives to an
  average item.
+ \begin{equation}
+ P = \vec{\mu} + \frac{(A - \bar J)R}{M|R|}
+ \end{equation}
+
+$P$ is prediction matrix of $n$ albums and $p$ users. $\mu$ is the average rating
+ of each reviewer. $A$ is the provided $nxp$ ratings matrix. $\bar J$ is an $n$ by $p$
+ matrix where the $i,j$ entry is the average rating of the $j$th reviewer, exluding the $i$th
+ rating. $R$ is the reviwer correlation matrix with diagonals set to 0. $M$ is a mask of
+ $A$, where cells with ratings in $A$ are $1$ in M, and all other values of $M$ are 0. 
+ The approach is heuristic in that there is no loss function to optimize or parameters
+ to tune. The algorithm is simply run on the data to produce predictions.
 
 \section{Experimental Setup}
 \label{sec:setup}
@@ -143,7 +156,7 @@ For this project, we have created a dataset of album reviews, named \aoty, by
  scraping data from \url{https://www.albumoftheyear.org}.
 On this website, users create profiles and rank albums from 0 to 100.
 After filtering out albums with $<100$ total reviews and users with $<10$
- positive reviews, \aoty has a total of $8,855$ and $22,167$ users.
+ positive reviews, \aoty has a total of $8,855$ albums and $22,167$ users.
 The average album in the dataset has $426.8$ reviews.
 The user-album matrix is very sparse: for \aoty, the sparsity $s = 1.9 \times
 	 10^{-2}$.
@@ -156,13 +169,17 @@ The {\em data sparsity} problem~\citep{suSurveyCollaborativeFiltering2009} in
 We consider two evaluation settings: {\em weak generalization}, where the
  recommendation algorithm is evaluated by a subset of all user-item
  interactions, and {\em strong generalization}, where the recommendation
- algorithm is evaluted on a heldout random subset of users.
+ algorithm is evaluted on a heldout random subset of users. 
+ \zander{also mention explicit vs. implicit?}
 
-In weak generalization, \yiming{todo}.
+In weak generalization, a random subset of ratings are omitted from the user-rating
+ matrix $X$ to create a user-rating matrix $X^{\prime}$. The algorithm is then run on 
+ $X^{\prime}$ to generate predictions. The predictions for the omitted ratings are then 
+ compared to the true ratings to evaluate performance.
 
-We evaluate \easer, both the original version and the gradient descent version
+  We evaluate \easer, both the original version and the gradient descent version
  in the strong generalizaton setting.
-We report performance a set of common retrieval metrics: Precision (P), Recall
+We report performance on a set of common retrieval metrics: Precision (P), Recall
  (R) and F1 @ $k$.
 Precision @ $k$ measures the percentage of recommended items that user like in
  top-$k$ recommendations, and recall @ $k$ measures the the coverage of all
@@ -177,6 +194,30 @@ Beyond these common retrieval metrics, we consider the following evaluation
 measures the concentration of recommendation.
 
 \end{itemize}
+
+We evaluate \userknn in the weak generalization setting on the full user-rating matrix, 
+omitting a random sample of 20\% of the ratings for a total of 736,944 test predictions.  
+We also evaluate \userknn in the strong generalization setting. To apply strong 
+generalization to \userknn, a new rating matrix needs to be generated for each test user that is $n$ by $v$, where $v$ is 
+the number of valid ratings provided by the user. In each column, one of the valid values 
+ is omitted so that the predicted value is not included in the correlation between
+the test user and all training users. A correlation matrix $R_j$ for the $j$ test user
+ then needs to be
+calcualted between each column vector of the $j$th test user's matrix and the training matrix
+$A$. Because this is computationally expensive to regenerate the correlation matrix, we 
+ used only 10 random test users to
+ evaluate \userknn in the strong generalization setting with a total of 1,121 predicted
+ ratings.  
+
+\userknn takes explicit feedback (ratings) as an input and generates explicit ratings as an output,
+so we evaluate the model on mean absolute error (MAE) and root mean squared error (RMESE).
+We also convert the true and predicted ratings to implicit feedback following the same
+procedure as for \easer and evaluate on a set of common retrieval metrics: Precision (P), 
+Recall (R) and F1 @ $k$. In the weak generalization test setting, test predictions are 
+distributed across users randomly, so instead of evaluating @ top-$k$ for each user, we evaluate
+the predictions as a whole. 
+
+
 
 \section{Results}
 
@@ -232,9 +273,6 @@ measures the concentration of recommendation.
 
 \end{table*}
 
-\paragraph*{\userknn.}
-\yiming{todo}.
-
 \paragraph*{\easer.}
 As discussed in \secref{sec:setup}, we evaluate the both the closed-form
  version of \easer and our proposed SGD approach on a heldout out test set of
@@ -276,6 +314,9 @@ We observe significant concentration in the recommendations of \easer, with
  roughly one-third of all albums recommended to at least one user.
 The Gini score of $0.925$ highlights a strong inequality in the recommendation,
  with a small subset of albums being heavily favored over the rest.
+
+\paragraph*{\userknn.} 
+\yiming{todo}.
 
 \section{Qualitative Analysis}
 
