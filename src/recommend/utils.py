@@ -3,6 +3,7 @@ from os.path import join
 
 import numpy as np
 import pandas as pd
+import tqdm
 from pygini import gini
 from scipy.sparse import csr_array
 
@@ -74,3 +75,35 @@ def evaluate(recs, X_test: np.ndarray, k: int = 20):
 def seed_everything(seed: int):
     random.seed(seed)
     np.random.seed(seed)
+
+
+def convert_vector(b):
+    '''
+    For UserKNN strong generalization, convert a vector of length n with v valid entries
+    to an nxv matrix in the jth column the jth valid entry is omitted.
+    '''
+    n = len(b)
+    valid_idx = np.where(~np.isnan(b))[0] #2d vector of nx1, only want row index of valid values
+    D0 = np.ones([n, len(valid_idx)])
+    for i, val in enumerate(valid_idx):
+        D0[val, i] = np.nan
+    B = b * D0 # broacast
+    return B
+
+
+def strong_gen_preds(uk, X_test, sample_idx=[0]):
+    P_list = []
+    for i in tqdm.tqdm(sample_idx):
+        b = X_test[:,i].reshape([-1,1])
+        uk.B = convert_vector(b)
+        uk.b_valid_idx = np.where(~np.isnan(b))[0]
+        uk.gen_M(strong=True)
+        uk.gen_mu(strong=True)
+        uk.gen_corrcoef(strong=True) # one vector of test data, 3:22 (17,733 train vectors, 86 test vectors perturbations)
+        uk.gen_preds(strong=True)
+        P_list.append(uk.P_strong)
+    return P_list
+
+
+def transform_interaction_matrix(X: np.ndarray, threshold: int) -> np.ndarray:
+    return (X >= threshold).astype(float)
