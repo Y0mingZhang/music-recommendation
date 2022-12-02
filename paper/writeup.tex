@@ -42,110 +42,139 @@
 \newcommand{\easer}{$\text{EASE}^\text{R}$}
 \newcommand{\userknn}{UserKNN\xspace}
 \newcommand{\norm}[1]{\ensuremath{\lVert #1 \rVert}}
+\newcommand{\transpose}[1]{{#1}^\mathsf{T}}
+\newcommand{\yiming}[1]{\textcolor{violet}{[#1 ---\textsc{YZ}]}}
+
 \begin{document}
 
 \maketitle
 
 \section{Introduction}
 
-In this project, we study music recommendation using tools we learned
- in the class and Collaborative Filtering (CF) methods.
-Collaborative Filtering performs matrix completion by leveraging
-user-level and album-level similarities:
-for a set of users $\U$ and items $\I$, the user-item matrix $\X$ takes the
-form of $\X = \mathbb{R}^{\card{\U} \times \card{\I}}$, with potentially
-missing values when no rating is available.
+In this project, we study music recommendation using tools we learned in the
+ class and Collaborative Filtering (CF) methods.
+Collaborative Filtering performs matrix completion by leveraging user-level and
+ album-level similarities: for a set of $n$ users and $p$ items, the user-item
+ matrix $\X$ takes the form of $\X = \mathbb{R}^{n \times p}$, with potentially
+ missing values when no rating is available.
 Then, the recommendation problem boils down to identifying a set of ``good''
-items $\I_u$ for a user $u$.
+ items $\I_i$ for a user $i \in [n]$.
 
-To study the problem of music recommendation, we create a new dataset (\aoty) as
-a testbed for music recommendation.
-We chose two recommendation algorithms, \easer~\citep{steckEmbarrassinglyShallowAutoencoders2019}
-and \userknn~\citep{resnickGroupLensOpenArchitecture1994} to implement, for their state-of-the-art
-performance and computational tractability demonstrated by a recent survey~\citep{anelliTopNRecommendationAlgorithms2022}.
+To study the problem of music recommendation, we create a new dataset (\aoty)
+ as a testbed for music recommendation.
+We chose two recommendation algorithms,
+ \easer~\citep{steckEmbarrassinglyShallowAutoencoders2019} and
+ \userknn~\citep{resnickGroupLensOpenArchitecture1994} to implement, for their
+ state-of-the-art performance and computational tractability demonstrated by a
+ recent survey~\citep{anelliTopNRecommendationAlgorithms2022}.
 Then, we evalaute the recommendation performance of both algorithms on \aoty.
 Both \easer and \userknn show strong recommendation performance on \aoty.
-On a heldout test set, \easer achieves an F1@20 score of 27.0, an impressive score
-considering there are over 8k potential albums.
+On a heldout test set, \easer achieves an F1@20 score of 27.0, an impressive
+ score considering there are over 8k potential albums.
 % Add a sentence for \userknn later.
 
-
 \section{Method}
-Collaborative Filtering, the technique of inferring the preferences of one
- user using known information about other users, is the dominant class of
- algorithm for recommendation systems.
+Collaborative Filtering, the technique of inferring the preferences of one user
+ using known information about other users, is the dominant class of algorithm
+ for recommendation systems.
 In this project, we plan to implement, extend and evaluate two CF algorithms,
  \easer and \userknn, demonstrated as among the state-of-the-art in a
  comprehensive study by \citet{anelliTopNRecommendationAlgorithms2022}.
 
-\begin{itemize}
-	\item {\em \easer}:
-	      \easer~\citep{steckEmbarrassinglyShallowAutoencoders2019}
-	      is a linear model parameterized by a item-item matrix $B \in
-		      \mathbb{R}^{\card{\I} \times \card{\I}}$.
-	      The weights $B$ are optimized with respect to the simple objective $\min_B
-		       \norm{\X - X B}_F^2 + \lambda \cdot \norm{B}^2$.
-	      The first term minimizes the {\em reconstruction cost}, while the second term
-	       is the common $L_2$ regularizer, encouraging $B$ to be low-rank.
-	      $B$ admits a degenerate solution $B = I$, under which the
-	      recommendation
-	      system always recommends items that the user already likes.
-	      To avoid this solution, the author added an additional constraint that
-	      $\mathrm{diag}(B) = \mathbf{0}$. While this is a similar setup to the 
-        least squares approach we covered in class, $X$ and $B$ are matrices, 
-        not vectors. 
+\paragraph*{\easer.}
+\easer~\citep{steckEmbarrassinglyShallowAutoencoders2019}
+is a linear model parameterized by a item-item matrix $B \in
+	\mathbb{R}^{p \times p}$.
+The weights $B$ are optimized with respect to the simple objective
+ \begin{equation} \min_B \norm{\X - X B}_F^2 + \lambda \cdot \norm{B}_F^2
+ \text{.
+}
+\end{equation}
+Intuitively, \easer reconstructs user preferences using information about items
+ exclusively.
+In addition, \easer adds an matrix norm penalty, encouraging $B$ to be
+ low-rank.
 
-	      \item{\em \userknn}: Neighborhood-based recommendation methods
-	      essentially
-	      treat the preference of a user $u$ as a weighted sum of
-	      preferences of other
-	      users under some notion of similarity.
-	      For a pair of users $u, v$,
-	       \userknn~\citep{resnickGroupLensOpenArchitecture1994} measures the similarity
-	       between users with the correlation coefficient $r_{uv}$ between items that $u$
-	       and $v$ both rated.
-	      The predicted score for an item is the weighted sum of ratings of similar
-	       users, after adjusting for the ``baseline rating'' that the user gives to an
-	       average item.
-\end{itemize}
+$B$ admits a degenerate solution $B = I$, under which the
+recommendation system always recommends items that the user
+already likes.
+To avoid this solution, the author added an additional constraint that
+ $\mathrm{diag}(B) = \mathbf{0}$.
+Learning the weights of $B$ is a (constrained) convex optimization problem, and
+ the optimal solution is given by  \begin{equation} \hat{B}_{i, j} =
+	 \begin{cases} 0 & \text{if $i = j$} \\ -\frac{\hat{P}_{i, j}}{\hat{P}_{j, j}} &
+               \text{otherwise,}     \\\end{cases} \end{equation} where $\hat{P} =
+	 (\transpose{X} X + \lambda I)^{-1}$.
+
+While the original work by \citet{steckEmbarrassinglyShallowAutoencoders2019}
+ proposes a closed-form solution, computing this closed-form solution requires
+ inverting an $p \times p$ matrix, taking $\mathcal{O}(p^3)$ time in a typical
+ commercial implementation.
+To save computational cost, we experiment with mini-batch stochastic gradient
+ descent as an alternative technique for computing $B$.
+To compute the loss $\min_B \norm{\X - X B}_F^2 + \lambda \cdot \norm{B}_F^2$,
+ we need to multiply matrices $X$ and $B$.
+Taking advantage of the sparsity of $X$, we can compute $X B$ in $\mathcal{O}(x
+	 p)$ time, where $x$ is the number non-zero elements in $X$.
+Then, this alternative training procedure takes $\mathcal{O}(kxp)$ time, where
+ $k$ is the number of iterations until convergence.
+
+\paragraph*{\userknn.}
+\yiming{add some stuff here?}
+Neighborhood-based recommendation methods essentially treat the preference of a
+ user $u$ as a weighted sum of preferences of other users under some notion of
+ similarity.
+For a pair of users $u, v$,
+ \userknn~\citep{resnickGroupLensOpenArchitecture1994} measures the similarity
+ between users with the correlation coefficient $r_{uv}$ between items that $u$
+ and $v$ both rated.
+The predicted score for an item is the weighted sum of ratings of similar
+ users, after adjusting for the ``baseline rating'' that the user gives to an
+ average item.
 
 \section{Experimental Setup}
-\paragraph*{Data Curation}
+\paragraph*{Data curation.}
 For this project, we have created a dataset of album reviews, named \aoty, by
  scraping data from \url{https://www.albumoftheyear.org}.
 On this website, users create profiles and rank albums from 0 to 100.
-After filtering out albums with $<5$ total reviews, \aoty has a total of 98k
- albums, and 38k users.
-The average album in the dataset has 143.1 reviews.
-The user-album matrix is extremely sparse.
-For \aoty, the sparsity $s = 1.4 \times 10^{-3}$.
+After filtering out albums with $<100$ total reviews and users with $<10$
+ positive reviews, \aoty has a total of $8,855$ and $22,167$ users.
+The average album in the dataset has $426.8$ reviews.
+The user-album matrix is very sparse: for \aoty, the sparsity $s = 1.9 \times
+	 10^{-2}$.
 The {\em data sparsity} problem~\citep{suSurveyCollaborativeFiltering2009} in
  the user-item matrix is a major challenge in most real-world recommendation
  problems, and we believe this property makes \aoty a suitable testbed for
  studying recommendation.
 
-\paragraph*{Setup and Evaluation}
-We are going to evaluate the recommendation systems on a test set with heldout
- users from training.
-Beyond common retrieval metrics (e.g., P/R/F1@$k$), we plan to consider the
- following evaluation metrics following
- \citet{anelliTopNRecommendationAlgorithms2022}:  \begin{itemize} \item {\em
-             IC}: Item Coverage (IC) measures the percentage of distinct items that are ever
- recommended.
+\paragraph*{Setup and evaluation metrics.}
+We consider two evaluation settings: {\em weak generalization}, where the
+ recommendation algorithm is evaluated by a subset of all user-item
+ interactions, and {\em strong generalization}, where the recommendation
+ algorithm is evaluted on a heldout random subset of users.
+
+In weak generalization, \yiming{todo}  We evaluate \easer, both the original
+ version and the gradient descent version in the strong generalizaton setting.
+We report performance a set of common retrieval metrics, including precision
+ (P), recall (R) and F1 @ $k$.
+Precision @ $k$ measures the percentage of recommended items that user like in
+ top-$k$ recommendations, and recall @ $k$ measures the the coverage of all
+ items liked by a user in top-$k$ recommendations.
+F1 @ $k$ is computed as the harmonic mean of precision and recall scores.
+
+Beyond these common retrieval metrics, we consider the following evaluation
+ metrics following \citet{anelliTopNRecommendationAlgorithms2022}:
+ \begin{itemize} \item {\em IC}: Item Coverage (IC) measures the percentage of
+ distinct items that is recommended to at least one user.
 \item {\em Gini}: Gini coefficient of the distribution of recommended items
 measures the concentration of recommendation.
 \end{itemize}
 
-Our goals for this project are to:
-\begin{itemize}
-  \item successfully implement these algorithms
-  \item demonstrate performance above common baselines (e.g., random reccomendation,
-  low rank matrix completion)  
-  \item analyze characteristics of recommendation, such as popularity bias, 
-concentration of recommendations, etc.  
-\end{itemize} 
-
 \section{Results}
+
+\yiming{todo: \userknn results}.
+
+\yiming{todo: \easer results}
 
 \newpage
 \bibliography{ref,yiming}
