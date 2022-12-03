@@ -81,7 +81,7 @@ On a heldout test set, \easer achieves an F1@20 score of 27.0, an impressive
 \section{Literature Review}
 Collaborative filtering recommendation systems have been a major focus of
  machine learning for several decades, with applications in commerce,
- entertainment, professional networking and beyond \zander{add citations}.
+ entertainment, professional networking and beyond \citep{smithTwoDecadesOfRecommenderSystemsAtAmazon.com2017,gomezUribeTheNetflixRecommenderSystem2016}.
 In recommendation settings, observations for a given user are often sparse, and
  the model is tasked with predicting user preferences without much training data
  for the particular user.
@@ -101,12 +101,9 @@ As \citet{Schedl2018} illustrate, recommendation for music has unique
 Individual songs last minutes, while other common recommendation items like
  movies or books are consumed over a much longer time period.
 Songs are consumed sequentially, where the particular order is meaningful.
-A given music catalog may contains tens of millions.
-Schedl et.
-al. argue that because of music's unique attributes, it is
-worthwhile
-studying recomendation systems when applied to music
-in isolation \citep{Schedl2018}.
+A given music catalog may contains tens of millions of entries.
+\citet{Schedl2018} argue that because of music's unique attributes, it is
+worthwhile to study recomendation systems as applied to music in isolation.
 
 Our study is unique from existing music recommendation systems work both in its
  application and the dataset.
@@ -130,7 +127,7 @@ In this project, we plan to implement, extend and evaluate two CF algorithms,
 
 \paragraph*{\easer.}
 \easer~\citep{steckEmbarrassinglyShallowAutoencoders2019}
-is a linear model parameterized by a item-item matrix $B \in
+is a linear model parameterized by an item-item matrix $B \in
 	\mathbb{R}^{p \times p}$.
 The weights $B$ are optimized with respect to the simple objective
  \begin{equation} \min_B \norm{\X - X B}_F^2 + \lambda \cdot \norm{B}_F^2
@@ -139,7 +136,7 @@ The weights $B$ are optimized with respect to the simple objective
 \end{equation}
 Intuitively, \easer reconstructs user preferences using information about items
  exclusively.
-In addition, \easer adds an matrix norm penalty, encouraging $B$ to be
+In addition, \easer adds a matrix norm penalty, encouraging $B$ to be
  low-rank.
 $B$ admits a degenerate solution $B = I$, under which the
 recommendation system always recommends items that the user likes.
@@ -152,7 +149,7 @@ Learning the weights of $B$ is a (constrained) convex optimization problem, and
 	 (\transpose{X} X + \lambda I)^{-1}$.
 
 Despite its simplicity, computing this closed-form solution requires inverting
- an $p \times p$ matrix, taking $\mathcal{O}(p^3)$ time in a typical commercial
+ a $p \times p$ matrix, taking $\mathcal{O}(p^3)$ time in a typical commercial
  implementation.
 To save computational cost, we experiment with mini-batch stochastic gradient
  descent as an alternative technique for computing $\hat{B}$.
@@ -160,7 +157,7 @@ To compute the loss $\norm{\X - X \hat{B}}_F^2 + \lambda \cdot
 	 \norm{\hat{B}}_F^2$, we need to multiply sparse matrices $X$ with $B$, which
  can be computed in $\mathcal{O}(x p)$ time, where $x$ is the number non-zero
  elements in $X$.
-Then, this alternative training procedure takes $\mathcal{O}(kxp)$ time, where
+This alternative training procedure takes $\mathcal{O}(kxp)$ time, where
  $k$ is the number of iterations until convergence.
 
 \paragraph*{\userknn.}
@@ -175,12 +172,15 @@ The predicted score for an item is the weighted sum of ratings of similar
  users, after adjusting for the ``baseline rating'' that the user gives to an
  average item.
 \begin{equation}
-P = \vec{\mu} + \frac{(A - \bar J)R}{M \card{R}} \end{equation}  $P$ is
- prediction matrix of $n$ albums and $p$ users.
+	P = \vec{\mu} + \frac{(A - \bar J)R}{M \card{R}} 
+\end{equation}  
+It is important to note that in this setting, the $n$ albums are the matrix
+ rows, while the $p$ users are the columns, which is the reverse of the \easer
+ setup.
+$P$ is prediction matrix of $n$ albums and $p$ users.
 $\mu$ is the average
 rating
-of each reviewer. $A$ is the provided $nxp$ ratings matrix. $\bar J$ is an $n$
-by $p$
+of each reviewer. $A$ is the provided $n \times p$ ratings matrix. $\bar J$ is an $n \times p$
 matrix where the $i,j$ entry is the average rating of the $j$th reviewer,
 exluding the $i$th
 rating. $R$ is the reviwer correlation matrix with diagonals set to 0. $M$ is
@@ -189,10 +189,10 @@ $A$, where cells with ratings in $A$ are $1$ in M, and all other values of $M$
 are 0.
 The approach is heuristic in that there is no loss function to optimize or
  parameters to tune.
-The algorithm is simply run on the data to produce predictions.
-It is important to note that is this setting, the $n$ albums are the matrix
- rows, while the $p$ users are the columns, which is the reverse of the \easer
- setup.
+The algorithm is simply run on the data to produce predictions. However, the original paper
+only provides the equation for a single rating estimate and we had to extrapolate to the 
+full matrix application.  
+
 
 \section{Experimental Setup}
 \label{sec:setup}
@@ -212,14 +212,14 @@ The {\em data sparsity} problem~\citep{suSurveyCollaborativeFiltering2009} in
 
 \paragraph*{Evaluation setup and metrics.}
 \easer assumes {\em implicit feedback}, where interactions are binary
-labels indicating whether user likes an item or not.
+labels indicating whether a user likes an item or not.
 Therefore, we binarize the \aoty dataset by considering all reviews with rating
  $\ge 75$ as the positive class, and all other reviews as the negative class.
 In a {\em strong generalization} setting (i.e., testing on heldout users in
  training), we measure the performance of \easer on three common retrieval
  metrics.
 Precision @ $k$ measures the percentage of recommended items that a user likes
- in top-$k$ recommendations, and recall @ $k$ measures the the coverage of all
+ in top-$k$ recommendations, and recall @ $k$ measures the coverage of all
  items liked by a user in top-$k$ recommendations.
 F1 is computed as the harmonic mean of precision and recall.
 Beyond these common retrieval metrics, we further consider the following
@@ -245,6 +245,9 @@ We further report performance in the {\em weak generalization} setting, where a
 The algorithm is then run on $X^{\prime}$ to generate predictions.
 The predictions for the omitted ratings are then compared to the true ratings
  to evaluate performance.
+
+Both algorithms were created from scratch in Python3 using matrix functions in NumPy and 
+pandas. 
 %  We evaluate \userknn in the weak generalization setting on the full user-rating
 %  matrix, omitting a random sample of 20\% of the ratings for a total of 736,944
 %  test predictions.
@@ -379,8 +382,9 @@ AUC $\uparrow$					& $86.1$
 \\
 Mean Abs.
 Error $\downarrow$	   & $8.55$		& $8.17$ \\ RMSE $\downarrow$
-	   & $11.8$		&$10.7$ $0.925$ \\ Optimization time
- $\downarrow$ & 5 seconds & 107 seconds \\ \bottomrule \end{tabular}
+	   & $11.8$		&$10.7$ 
+\\ 
+Optimization time $\downarrow$ & 5 seconds & 107 seconds \\ \bottomrule \end{tabular}
  \caption{Evaluation of \userknn on a heldout test set in weak generalization
  setting.
 $\uparrow$ means
@@ -403,7 +407,7 @@ The algorithm performs strongly in both the weak and strong generalization
 To evaluate the model's performance on implicit feedback data, all true ratings
  $\geq$ 75 were converted to 1, while all other ratings were converted to 0.
 Model predictions were also converted using the same threshold, though the ROC
- curve in figure X shows strong performance across different thresholds for
+ curve in figure 1b shows strong performance across different thresholds for
  model predictions with AUCs of 86.1 and 88.7 respectively.
 At the selected threshold, the model has comparable recall in the weak and
  strong settings at 85.1 and 85.0, but the model has better recall in the weak
