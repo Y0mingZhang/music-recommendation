@@ -303,3 +303,4 @@ TSWLatexianTemp*
 *.pdf
 *.bak*
 !figures/*
+!writeup.pdf
