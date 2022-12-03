@@ -75,13 +75,13 @@ We chose two recommendation algorithms,
 Then, we evaluate the recommendation performance of both algorithms on \aoty.
 Both \easer and \userknn show strong recommendation performance on \aoty.
 On a heldout test set, \easer achieves an F1@20 score of 27.0, an impressive
- score considering there are over 8k potential albums.
-\yiming{Add a sentence for \userknn later.}
+ score considering there are over 8k potential albums. On a heldout teest test \userknn
+ achieves an F1 of 82.2 across all test user-item predicitions. 
 
 \section{Literature Review}
 Collaborative filtering recommendation systems have been a major focus of
  machine learning for several decades, with applications in commerce,
- entertainment, professional networking and beyond.
+ entertainment, professional networking and beyond \zander{add citations}.
 In recommendation settings, observations for a given user are often sparse, and
  the model is tasked with predicting user preferences without much training data
  for the particular user.
@@ -281,7 +281,7 @@ The predictions for the omitted ratings are then compared to the true ratings
 	\end{subfigure}
 	\begin{subfigure}[b]{0.3\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{figures/user_knn_roc.png}
+		\includegraphics[width=\textwidth]{figures/user_knn_roc.pdf}
 		\caption{\userknn performance on different implicit feedback thresholds. Dots represent evaluated threshold.}
 	\end{subfigure}
 	\caption{}
