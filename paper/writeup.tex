@@ -247,25 +247,6 @@ The algorithm is then run on $X^{\prime}$ to generate predictions.
 The predictions for the omitted ratings are then compared to the true ratings
  to evaluate performance.
 
-Both algorithms were created from scratch in Python3 using matrix functions in
- NumPy and pandas.
-%  We evaluate \userknn in the weak generalization setting on the full user-rating
-%  matrix, omitting a random sample of 20\% of the ratings for a total of 736,944
-%  test predictions.
-% We also evaluate \userknn in the strong generalization setting.
-% To apply strong  generalization to \userknn, a new rating matrix needs to be
-%  generated for each test user that is $n$ by $v$, where $v$ is the number of
-%  valid ratings provided by the user.
-% In each column, one of the valid values is omitted so that the predicted value
-%  is not included in the correlation between the test user and all training
-%  users.
-% A correlation matrix $R_j$ for the $j$ test user then needs to be calcualted
-%  between each column vector of the $j$th test user's matrix and the training
-%  matrix $A$.
-% Because this is computationally expensive to regenerate the correlation matrix,
-%  we used only 10 random test users to evaluate \userknn in the strong
-%  generalization setting with a total of 1,121 predicted ratings.
-
 \section{Results}
 
 \begin{figure*}[h]
@@ -386,12 +367,10 @@ AUC $\uparrow$					& $86.1$
 & $88.7$
 \\
 Mean Abs.
-Error $\downarrow$	   & $8.55$		& $8.17$ \\ RMSE $\downarrow$
-	   & $11.8$		&$10.7$ 
-\\ 
-Optimization time $\downarrow$ & 5 seconds & 107 seconds \\ \bottomrule \end{tabular}
- \caption{Evaluation of \userknn on a heldout test set in weak generalization
- and strong generalization settings.
+Error $\downarrow$	   & $8.55$		& $8.17$ \\ RMSE $\downarrow$ &
+ $11.8$		&$10.7$ \\ \bottomrule \end{tabular} \caption{Evaluation of
+ \userknn on a heldout test set in weak generalization and strong generalization
+ settings.
 $\uparrow$ means
 higher is better, and $\downarrow$
 means lower is better.}
