@@ -266,20 +266,15 @@ The predictions for the omitted ratings are then compared to the true ratings
 
 \begin{figure*}[h]
 	\centering
-	\begin{subfigure}[b]{0.3\textwidth}
+	\begin{subfigure}[b]{0.4\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{figures/recon-loss.pdf}
-		\caption{Convergence of stochastic gradient descent to optimal
-			solution in \easer.}
+		\caption{Convergence of stochastic gradient descent (blue) to the optimal
+		solution (green) in \easer.}
 		\label{fig:convergence}
 	\end{subfigure}
-	% \hfill
-	\begin{subfigure}[b]{0.3\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{figures/recon-loss.pdf}
-		\caption{\yiming{placeholder for new figures}.}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.3\textwidth}
+	\hspace{0.1\textwidth}
+	\begin{subfigure}[b]{0.4\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{figures/user_knn_roc.pdf}
 		\caption{\userknn performance on different implicit feedback thresholds. Dots represent evaluated threshold.}
