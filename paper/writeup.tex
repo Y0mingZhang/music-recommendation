@@ -42,7 +42,7 @@
 \DeclareMathOperator{\U}{\mathcal{U}}
 \DeclareMathOperator{\I}{\mathcal{I}}
 \newcommand{\card}[1]{\ensuremath{\lvert {#1} \rvert}}
-\newcommand{\easer}{$\text{EASE}^\text{R}$}
+\newcommand{\easer}{$\text{EASE}^\text{R}$\xspace}
 \newcommand{\userknn}{UserKNN\xspace}
 \newcommand{\norm}[1]{\ensuremath{\lVert #1 \rVert}}
 \newcommand{\transpose}[1]{{#1}^\mathsf{T}}
@@ -57,26 +57,27 @@
 \section{Introduction}
 
 In this project, we study music recommendation using tools we learned in the
- class and Collaborative Filtering (CF) methods.
-Collaborative Filtering performs matrix completion by leveraging user-level and
+ class and collaborative filtering (CF) methods.
+Collaborative filtering performs matrix completion by leveraging user-level and
  album-level similarities: for a set of $n$ users and $p$ items, the user-item
  matrix $\X$ takes the form of $\X = \mathbb{R}^{n \times p}$, with potentially
  missing values when no rating is available.
 Then, the recommendation problem boils down to identifying a set of ``good''
  items $\I_i$ for a user $i \in [n]$.
 
-To study the problem of music recommendation, we create a new dataset (\aoty)
- as a testbed for music recommendation.
-We chose two recommendation algorithms,
+To study the problem of music recommendation, we create a new dataset \aoty as
+ a testbed for music recommendation.
+We chose to experiment with two recommendation algorithms,
  \easer~\citep{steckEmbarrassinglyShallowAutoencoders2019} and
- \userknn~\citep{resnickGroupLensOpenArchitecture1994} to implement, for their
+ \userknn~\citep{resnickGroupLensOpenArchitecture1994}, for their
  state-of-the-art performance and computational tractability demonstrated by a
  recent survey~\citep{anelliTopNRecommendationAlgorithms2022}.
-Then, we evaluate the recommendation performance of both algorithms on \aoty.
-Both \easer and \userknn show strong recommendation performance on \aoty.
-On a heldout test set, \easer achieves an F1@20 score of 27.0, an impressive
- score considering there are over 8k potential albums. On a heldout teest test \userknn
- achieves an F1 of 82.2 across all test user-item predicitions. 
+After implementation, we evaluate their performance on \aoty.
+Both \easer and \userknn show strong recommendation performance: In a retrieval
+ setting, \easer achieves an F1@20 score of 27.0, an impressive score
+ considering there are over 8k potential albums.
+In a classification setting, \userknn achieves an F1 of 82.2 on heldout
+ user-item predicitions.
 
 \section{Literature Review}
 Collaborative filtering recommendation systems have been a major focus of
@@ -93,11 +94,11 @@ Beyond computational complexity and performance on a given task, the model
 For example, some algorthmic families are better at handling implicit feedback
  datasets (where a value of 1 indicates a user interaction and a 0 indicates no
  user interaction), while others handle explicit feedback (where a user gives an
- item a rating on an ordinal or continuos scale)
+ item a rating on an ordinal or continuous scale)
  \citep{steckEmbarrassinglyShallowAutoencoders2019}.
 
 As \citet{Schedl2018} illustrate, recommendation for music has unique
- attributes from other recommendation tasks.
+ differences from other recommendation tasks.
 Individual songs last minutes, while other common recommendation items like
  movies or books are consumed over a much longer time period.
 Songs are consumed sequentially, where the particular order is meaningful.
@@ -116,9 +117,9 @@ This distinction is important in an era where music critics and fans bemoan how
  the "endless mix-tape" of song recommendation algorithms detracts from the
  experience of listening to an album from start to finish
  \citep{toth2018,hilton2013}.
-The dataset we've compiled and curated from aoty.org provides explicit feedback
- from users at the album level, which enables us to research performance
- differences in models intended for explicit and implicit feedback.
+The dataset we've compiled and curated from \url{aoty.org} provides explicit
+ feedback from users at the album level, which enables us to research
+ performance differences in models intended for explicit and implicit feedback.
 
 \section{Method}
 Collaborative Filtering, the technique of inferring the preferences of one user
@@ -126,7 +127,7 @@ Collaborative Filtering, the technique of inferring the preferences of one user
  for recommendation systems.
 In this project, we plan to implement, extend and evaluate two CF algorithms,
  \easer and \userknn, demonstrated as among the state-of-the-art in a
- comprehensive study by \citet{anelliTopNRecommendationAlgorithms2022}.
+ comprehensive survey by \citet{anelliTopNRecommendationAlgorithms2022}.
 
 \paragraph*{\easer.}
 \easer~\citep{steckEmbarrassinglyShallowAutoencoders2019}
@@ -157,7 +158,7 @@ Despite its simplicity, computing this closed-form solution requires inverting
 To save computational cost, we experiment with mini-batch stochastic gradient
  descent as an alternative technique for computing $\hat{B}$.
 To compute the loss $\norm{\X - X \hat{B}}_F^2 + \lambda \cdot
-	 \norm{\hat{B}}_F^2$, we need to multiply sparse matrices $X$ with $B$, which
+	 \norm{\hat{B}}_F^2$, we need to multiply a sparse matrice $X$ with $B$, which
  can be computed in $\mathcal{O}(x p)$ time, where $x$ is the number non-zero
  elements in $X$.
 Then, this alternative training procedure takes $\mathcal{O}(kxp)$ time, where
@@ -179,17 +180,19 @@ P = \vec{\mu} + \frac{(A - \bar J)R}{M \card{R}} \end{equation}  $P$ is
  prediction matrix of $n$ albums and $p$ users.
 $\mu$ is the average
 rating
-of each reviewer. $A$ is the provided $nxp$ ratings matrix. $\bar J$ is an $n$
+of each reviewer. $A$ is the provided $n \times p$ ratings matrix. $\bar J$ is
+an $n$
 by $p$
 matrix where the $i,j$ entry is the average rating of the $j$th reviewer,
 exluding the $i$th
-rating. $R$ is the reviwer correlation matrix with diagonals set to 0. $M$ is
+rating. $R$ is the reviwer correlation matrix with its diagonal set to 0. $M$
+is
 a mask of
 $A$, where cells with ratings in $A$ are $1$ in M, and all other values of $M$
 are 0.
-The approach is heuristic in that there is no loss function to optimize or
- parameters to tune.
-The algorithm is simply run on the data to produce predictions.
+The approach is non-parametric in that there is no loss function to optimize
+ for and no parameters to tune.
+The algorithm simply aggregates known user data to produce predictions.
 It is important to note that is this setting, the $n$ albums are the matrix
  rows, while the $p$ users are the columns, which is the reverse of the \easer
  setup.
@@ -198,7 +201,7 @@ It is important to note that is this setting, the $n$ albums are the matrix
 \label{sec:setup}
 \paragraph*{Data curation.}
 For this project, we have created a dataset of album reviews, named \aoty, by
- scraping data from \url{https://www.albumoftheyear.org}.
+ scraping data from \url{https://aoty.org}.
 On this website, users create profiles and rank albums from 0 to 100.
 After filtering out albums with $<100$ total reviews and users with $<10$
  positive reviews, \aoty has a total of $8,855$ albums and $22,167$ users.
@@ -221,7 +224,7 @@ In a {\em strong generalization} setting (i.e., testing on heldout users in
 Precision @ $k$ measures the percentage of recommended items that a user likes
  in top-$k$ recommendations, and recall @ $k$ measures the the coverage of all
  items liked by a user in top-$k$ recommendations.
-F1 is computed as the harmonic mean of precision and recall.
+F1 is defined as the harmonic mean of precision and recall.
 Beyond these common retrieval metrics, we further consider the following
  metrics following \citet{anelliTopNRecommendationAlgorithms2022}:
  \begin{itemize} \item {\em Item Coverage}: Item Coverage (IC) measures the
@@ -269,15 +272,19 @@ The predictions for the omitted ratings are then compared to the true ratings
 	\begin{subfigure}[b]{0.4\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{figures/recon-loss.pdf}
-		\caption{Convergence of stochastic gradient descent (blue) to the optimal,
-		closed-form solution (green) in \easer.}
+		\caption{Convergence of stochastic gradient descent (blue) to
+			the optimal,
+			closed-form solution (green) in \easer.}
 		\label{fig:convergence}
 	\end{subfigure}
 	\hspace{0.1\textwidth}
 	\begin{subfigure}[b]{0.4\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{figures/user_knn_roc.pdf}
-		\caption{\userknn performance on different implicit feedback thresholds. Dots represent evaluated threshold.}
+		\caption{\userknn performance on different implicit feedback
+			thresholds.
+			Dots represent evaluated threshold.
+		}
 	\end{subfigure}
 	\caption{}
 	\label{fig:1}
@@ -317,41 +324,40 @@ The predictions for the omitted ratings are then compared to the true ratings
 \end{table*}
 
 \paragraph*{\easer.}
-As discussed in \secref{sec:setup}, we evaluate the both the closed-form
- version of \easer and our proposed SGD approach on a heldout out test set of
- users.
+We evaluate the both the closed-form version of \easer and our proposed
+ stochastic gradient descent (SGD) approach on a heldout out test set of users.
 We are interested in quantifying the recommendation quality of both algorithms,
- and also understanding whether our proposed approach produces a solution that
+ and understanding whether our proposed approach produces a solution that
  converges to the closed-form solution.
 
 One way to understand the convergence behavior of the algorithm is by measuring
  the reconstruction loss $\norm{X - X \hat{B}}_F^2$.
 In Figure \ref{fig:1}\ref{sub@fig:convergence}, we plot the reconstruction loss
- corresponding to $\hat{B}^{(t)}$, the weights at epoch $t$, against the number
- of epochs $t$.
+ corresponding to $\hat{B}^{(t)}$, the weights at epoch $t$, against the epoch
+ number $t$.
 The green line corresponds to the reconstruction loss of the optimal
  closed-form solution.
 We find that the reconstruction loss of stochastic gradient descent indeed
  converges to that of the closed-form solution.
 This observation isn't surprising given that \easer has a convex objective, and
- gradient descent provably converges for convex objectives.
+ gradient descent provably converges for convex optimization problems.
 That said, SGD-based optimization takes 107 seconds in our experiment, 21x
  longer than that of computing the closed-form solution directly.
 We suspect that although our proposed solution has smaller big-$\mathcal{O}$
  complexity on paper, it's not well-tuned compared  NumPy's matrix inversion
  algorithm.
-In addition, multiplying with sparse matricies does not take advantage of cache
- locality, an important reason why accessing succesive locations in arrays are
- fast.
+In addition, unlike normal matrix multiplication, sparse matrix multiplication
+ does not take advantage of memory locality, a hardware level optimization that
+ makes sequential memory access fast.
 
 \easer shows strong recommendation performance when evaluated on unseen users
 in training, highlighted by a Precision @ $20$ score of $69.2$, meaning users
 provided
 positive reviews for the majority of items we recommended.
-While the Recall @ $20$ score is only $21.0$, the cutoff is smaller than the
+While the Recall @ $20$ score is only $21.0$, the cutoff of 20 items is less than the
  average number of reviews per user, making a perfect score unattainable.
-Additionally, we argue that Precision is the more relevant metric in the
- recommendation problem, as we care mostly about recommending some, rather than
+We also argue that precision is the more relevant metric in
+ recommendation, as we care mostly about recommending some, rather than
  all, items that a user will like.
 We observe significant concentration in the recommendations of \easer, with
  roughly one-third of all albums recommended to at least one user.
@@ -366,7 +372,7 @@ Evaluation metrics    & \userknn - Weak Gen. & \userknn -
 Strong Gen.
 \\ \midrule
 Number of Ratings			  & 736,944
-&$1,121$ \\
+& 1,121 \\
 Precision $\uparrow$	      & $85.1$		     & $85.0$
 \\
 Recall	$\uparrow$		& $79.5$	       & $62.4$
@@ -378,11 +384,10 @@ AUC $\uparrow$					& $86.1$
 & $88.7$
 \\
 Mean Abs.
-Error $\downarrow$	   & $8.55$		& $8.17$ \\ RMSE $\downarrow$
-	   & $11.8$		&$10.7$ $0.925$ \\ Optimization time
- $\downarrow$ & 5 seconds & 107 seconds \\ \bottomrule \end{tabular}
- \caption{Evaluation of \userknn on a heldout test set in weak generalization
- setting.
+Error $\downarrow$	   & $8.55$		& $8.17$ \\ RMSE $\downarrow$ &
+ $11.8$ &$10.7$ $0.925$ \\ Optimization time $\downarrow$ & 5 seconds & 107
+ seconds \\ \bottomrule \end{tabular} \caption{Evaluation of \userknn on a
+ heldout test set in weak generalization setting.
 $\uparrow$ means
 higher is better, and $\downarrow$
 means lower is better.}
@@ -394,7 +399,7 @@ means lower is better.}
 We evaluate \userknn in both a weak generalization and strong generalization
  setting, utilizing both the original explicit feedback ratings and engineered
  implicit feedback.
-As noted above, the weak setting included 736,944 test predictions sampled
+The weak setting included 736,944 test predictions sampled
  randomly across all users and albums, while the strong setting involved just 10
  randomly sampled users across all albums for a total of 1,121 test predictions.
 
