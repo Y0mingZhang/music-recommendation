@@ -72,43 +72,53 @@ We chose two recommendation algorithms,
  \userknn~\citep{resnickGroupLensOpenArchitecture1994} to implement, for their
  state-of-the-art performance and computational tractability demonstrated by a
  recent survey~\citep{anelliTopNRecommendationAlgorithms2022}.
-Then, we evalaute the recommendation performance of both algorithms on \aoty.
+Then, we evaluate the recommendation performance of both algorithms on \aoty.
 Both \easer and \userknn show strong recommendation performance on \aoty.
 On a heldout test set, \easer achieves an F1@20 score of 27.0, an impressive
  score considering there are over 8k potential albums.
-% Add a sentence for \userknn later.
-\zander{add lit review}
+\yiming{Add a sentence for \userknn later.}
+
 \section{Literature Review}
-Collaborative filtering recommendation systems have been a major focus of machine learning
-for several decades, with applications in commerce, entertainment, professional networking and beyond.
-In recommendation settings, observations for a given user are often sparse, and the model
-is tasked with predicting user preferences without much training data for the particular
-user. 
-There are a variety of model families that are well-suited to this task, including neighborhood-based, 
-linear, matrix factorization, and neural models, among others \citep{anelliTopNRecommendationAlgorithms2022}. 
-Beyond computational complexity and performance on a given task, the model families differ
-in the types of tasks they are most adept at handling. For example, some algorthmic families
-are better at handling implicit feedback datasets (where a value of 1 indicates a user
-interaction and a 0 indicates no user interaction), while others handle explicit feedback
-(where a user gives an item a rating on an ordinal or continuos scale) \citep{steckEmbarrassinglyShallowAutoencoders2019}.
+Collaborative filtering recommendation systems have been a major focus of
+ machine learning for several decades, with applications in commerce,
+ entertainment, professional networking and beyond.
+In recommendation settings, observations for a given user are often sparse, and
+ the model is tasked with predicting user preferences without much training data
+ for the particular user.
+There are a variety of model families that are well-suited to this task,
+ including neighborhood-based, linear, matrix factorization, and neural models,
+ among others \citep{anelliTopNRecommendationAlgorithms2022}.
+Beyond computational complexity and performance on a given task, the model
+ families differ in the types of tasks they are most adept at handling.
+For example, some algorthmic families are better at handling implicit feedback
+ datasets (where a value of 1 indicates a user interaction and a 0 indicates no
+ user interaction), while others handle explicit feedback (where a user gives an
+ item a rating on an ordinal or continuos scale)
+ \citep{steckEmbarrassinglyShallowAutoencoders2019}.
 
-As \citet{Schedl2018} illustrate, recommendation for music has unique attributes from other
-recommendation tasks. Individual songs last minutes, while other common recommendation items
-like movies or books are consumed over a much longer time period. Songs are consumed sequentially, 
-where the particular order is meaningful. A given music catalog may contains tens of millions. 
-Schedl et. al. argue that because of music's unique attributes, it is worthwhile 
+As \citet{Schedl2018} illustrate, recommendation for music has unique
+ attributes from other recommendation tasks.
+Individual songs last minutes, while other common recommendation items like
+ movies or books are consumed over a much longer time period.
+Songs are consumed sequentially, where the particular order is meaningful.
+A given music catalog may contains tens of millions.
+Schedl et.
+al. argue that because of music's unique attributes, it is
+worthwhile
 studying recomendation systems when applied to music
- in isolation \citep{Schedl2018}. 
+in isolation \citep{Schedl2018}.
 
-Our study is unique from existing music recommendation systems work 
- both in its application and the dataset. Our unit of recommendation is an album, while
- most commercial music recommendation systems operate at the song level \citep{Schedl2018}. 
- This distinction is important in an era where music critics and fans bemoan how the "endless mix-tape" of song recommendation
-algorithms detracts from the experience of listening to an album from start to finish \citep{thoth2018, hilton2013}. 
-The dataset we've compiled and curated from aoty.org provides explicit feedback from 
-users at the album level, which enables us to research performance differences in models
-intended for explicit and implicit feedback. 
-
+Our study is unique from existing music recommendation systems work both in its
+ application and the dataset.
+Our unit of recommendation is an album, while most commercial music
+ recommendation systems operate at the song level \citep{Schedl2018}.
+This distinction is important in an era where music critics and fans bemoan how
+ the "endless mix-tape" of song recommendation algorithms detracts from the
+ experience of listening to an album from start to finish
+ \citep{thoth2018,hilton2013}.
+The dataset we've compiled and curated from aoty.org provides explicit feedback
+ from users at the album level, which enables us to research performance
+ differences in models intended for explicit and implicit feedback.
 
 \section{Method}
 Collaborative Filtering, the technique of inferring the preferences of one user
@@ -131,10 +141,8 @@ Intuitively, \easer reconstructs user preferences using information about items
  exclusively.
 In addition, \easer adds an matrix norm penalty, encouraging $B$ to be
  low-rank.
-
 $B$ admits a degenerate solution $B = I$, under which the
-recommendation system always recommends items that the user
-already likes.
+recommendation system always recommends items that the user likes.
 To avoid this solution, the author added an additional constraint that
  $\mathrm{diag}(B) = \mathbf{0}$.
 Learning the weights of $B$ is a (constrained) convex optimization problem, and
@@ -143,16 +151,15 @@ Learning the weights of $B$ is a (constrained) convex optimization problem, and
                \text{otherwise,}     \\\end{cases} \end{equation} where $\hat{P} =
 	 (\transpose{X} X + \lambda I)^{-1}$.
 
-While the original work by \citet{steckEmbarrassinglyShallowAutoencoders2019}
- proposes a closed-form solution, computing this closed-form solution requires
- inverting an $p \times p$ matrix, taking $\mathcal{O}(p^3)$ time in a typical
- commercial implementation.
+Despite its simplicity, computing this closed-form solution requires inverting
+ an $p \times p$ matrix, taking $\mathcal{O}(p^3)$ time in a typical commercial
+ implementation.
 To save computational cost, we experiment with mini-batch stochastic gradient
- descent as an alternative technique for computing $B$.
-To compute the loss $\min_B \norm{\X - X B}_F^2 + \lambda \cdot \norm{B}_F^2$,
- we need to multiply matrices $X$ and $B$.
-Taking advantage of the sparsity of $X$, we can compute $X B$ in $\mathcal{O}(x
-	 p)$ time, where $x$ is the number non-zero elements in $X$.
+ descent as an alternative technique for computing $\hat{B}$.
+To compute the loss $\norm{\X - X \hat{B}}_F^2 + \lambda \cdot
+	 \norm{\hat{B}}_F^2$, we need to multiply sparse matrices $X$ with $B$, which
+ can be computed in $\mathcal{O}(x p)$ time, where $x$ is the number non-zero
+ elements in $X$.
 Then, this alternative training procedure takes $\mathcal{O}(kxp)$ time, where
  $k$ is the number of iterations until convergence.
 
@@ -167,19 +174,25 @@ For a pair of users $u, v$,
 The predicted score for an item is the weighted sum of ratings of similar
  users, after adjusting for the ``baseline rating'' that the user gives to an
  average item.
- \begin{equation}
- P = \vec{\mu} + \frac{(A - \bar J)R}{M|R|}
- \end{equation}
-
-$P$ is prediction matrix of $n$ albums and $p$ users. $\mu$ is the average rating
- of each reviewer. $A$ is the provided $nxp$ ratings matrix. $\bar J$ is an $n$ by $p$
- matrix where the $i,j$ entry is the average rating of the $j$th reviewer, exluding the $i$th
- rating. $R$ is the reviwer correlation matrix with diagonals set to 0. $M$ is a mask of
- $A$, where cells with ratings in $A$ are $1$ in M, and all other values of $M$ are 0. 
- The approach is heuristic in that there is no loss function to optimize or parameters
- to tune. The algorithm is simply run on the data to produce predictions. It is important
- to note that is this setting, the $n$ albums are the matrix rows, while the $p$ users 
- are the columns, which is the reverse of the \easer setup. 
+\begin{equation}
+P = \vec{\mu} + \frac{(A - \bar J)R}{M \card{R}} \end{equation}  $P$ is
+ prediction matrix of $n$ albums and $p$ users.
+$\mu$ is the average
+rating
+of each reviewer. $A$ is the provided $nxp$ ratings matrix. $\bar J$ is an $n$
+by $p$
+matrix where the $i,j$ entry is the average rating of the $j$th reviewer,
+exluding the $i$th
+rating. $R$ is the reviwer correlation matrix with diagonals set to 0. $M$ is
+a mask of
+$A$, where cells with ratings in $A$ are $1$ in M, and all other values of $M$
+are 0.
+The approach is heuristic in that there is no loss function to optimize or
+ parameters to tune.
+The algorithm is simply run on the data to produce predictions.
+It is important to note that is this setting, the $n$ albums are the matrix
+ rows, while the $p$ users are the columns, which is the reverse of the \easer
+ setup.
 
 \section{Experimental Setup}
 \label{sec:setup}
@@ -197,59 +210,57 @@ The {\em data sparsity} problem~\citep{suSurveyCollaborativeFiltering2009} in
  problems, and we believe this property makes \aoty a suitable testbed for
  studying recommendation.
 
-\paragraph*{Evaluation settings and metrics.}
-We consider two evaluation settings: {\em weak generalization}, where the
- recommendation algorithm is evaluated by a subset of all user-item
- interactions, and {\em strong generalization}, where the recommendation
- algorithm is evaluted on a heldout random subset of users. 
- \zander{also mention explicit vs. implicit?}
-
-In weak generalization, a random subset of ratings are omitted from the user-rating
- matrix $X$ to create a user-rating matrix $X^{\prime}$. The algorithm is then run on 
- $X^{\prime}$ to generate predictions. The predictions for the omitted ratings are then 
- compared to the true ratings to evaluate performance.
-
-  We evaluate \easer, both the original version and the gradient descent version
- in the strong generalizaton setting.
-We report performance on a set of common retrieval metrics: Precision (P), Recall
- (R) and F1 @ $k$.
-Precision @ $k$ measures the percentage of recommended items that user like in
- top-$k$ recommendations, and recall @ $k$ measures the the coverage of all
+\paragraph*{Evaluation setup and metrics.}
+\easer assumes {\em implicit feedback}, where interactions are binary
+labels indicating whether user likes an item or not.
+Therefore, we binarize the \aoty dataset by considering all reviews with rating
+ $\ge 75$ as the positive class, and all other reviews as the negative class.
+In a {\em strong generalization} setting (i.e., testing on heldout users in
+ training), we measure the performance of \easer on three common retrieval
+ metrics.
+Precision @ $k$ measures the percentage of recommended items that a user likes
+ in top-$k$ recommendations, and recall @ $k$ measures the the coverage of all
  items liked by a user in top-$k$ recommendations.
-F1 @ $k$ is computed as the harmonic mean of precision and recall @ $k$.
-
-Beyond these common retrieval metrics, we consider the following evaluation
+F1 is computed as the harmonic mean of precision and recall.
+Beyond these common retrieval metrics, we further consider the following
  metrics following \citet{anelliTopNRecommendationAlgorithms2022}:
  \begin{itemize} \item {\em Item Coverage}: Item Coverage (IC) measures the
- percentage of distinct items that is recommended to at least one user.
-\item {\em Gini}: Gini coefficient of the distribution of recommended items
-measures the concentration of recommendation.
-
+ percentage of items that is recommended to at least one user.
+\item {\em Gini}: Gini coefficient of the distribution of recommendation
+measures its inequality.
 \end{itemize}
 
-We evaluate \userknn in the weak generalization setting on the full user-rating matrix, 
-omitting a random sample of 20\% of the ratings for a total of 736,944 test predictions.  
-We also evaluate \userknn in the strong generalization setting. To apply strong 
-generalization to \userknn, a new rating matrix needs to be generated for each test user that is $n$ by $v$, where $v$ is 
-the number of valid ratings provided by the user. In each column, one of the valid values 
- is omitted so that the predicted value is not included in the correlation between
-the test user and all training users. A correlation matrix $R_j$ for the $j$ test user
- then needs to be
-calcualted between each column vector of the $j$th test user's matrix and the training matrix
-$A$. Because this is computationally expensive to regenerate the correlation matrix, we 
- used only 10 random test users to
- evaluate \userknn in the strong generalization setting with a total of 1,121 predicted
- ratings.  
-
-\userknn takes explicit feedback (ratings) as an input and generates explicit ratings as an output,
-so we evaluate the model on mean absolute error (MAE) and root mean squared error (RMESE).
-We also convert the true and predicted ratings to implicit feedback following the same
-procedure as for \easer and evaluate on a set of common retrieval metrics: Precision (P), 
-Recall (R) and F1 @ $k$. In the weak generalization test setting, test predictions are 
-distributed across users randomly, so instead of evaluating @ top-$k$ for each user, we evaluate
-the predictions as a whole. 
-
-
+\userknn takes {\em explicit feedback} (ratings) as input and generates
+explicit ratings as output,
+so we evaluate the model on mean absolute error (MAE) and root mean squared
+error (RMSE).
+We also convert the true and predicted ratings to implicit feedback following
+ the same procedure as for \easer and evaluate on previously discussed retrieval
+ metrics.
+Since evaluation with \userknn is slow, we randomly selected 10 users in the
+ test set for evaluation under the {\em strong generalization setting}.
+We further report performance in the {\em weak generalization} setting, where a
+ random sample of 20\% of ratings are omitted from the user-rating matrix $X$ to
+ create a user-rating matrix $X^{\prime}$.
+The algorithm is then run on $X^{\prime}$ to generate predictions.
+The predictions for the omitted ratings are then compared to the true ratings
+ to evaluate performance.
+%  We evaluate \userknn in the weak generalization setting on the full user-rating
+%  matrix, omitting a random sample of 20\% of the ratings for a total of 736,944
+%  test predictions.
+% We also evaluate \userknn in the strong generalization setting.
+% To apply strong  generalization to \userknn, a new rating matrix needs to be
+%  generated for each test user that is $n$ by $v$, where $v$ is the number of
+%  valid ratings provided by the user.
+% In each column, one of the valid values is omitted so that the predicted value
+%  is not included in the correlation between the test user and all training
+%  users.
+% A correlation matrix $R_j$ for the $j$ test user then needs to be calcualted
+%  between each column vector of the $j$th test user's matrix and the training
+%  matrix $A$.
+% Because this is computationally expensive to regenerate the correlation matrix,
+%  we used only 10 random test users to evaluate \userknn in the strong
+%  generalization setting with a total of 1,121 predicted ratings.
 
 \section{Results}
 
@@ -347,54 +358,58 @@ We observe significant concentration in the recommendations of \easer, with
 The Gini score of $0.925$ highlights a strong inequality in the recommendation,
  with a small subset of albums being heavily favored over the rest.
 
-
- \begin{table*}[h]
-	\centering
-	\begin{tabular}{@{}llll@{}}
-		\toprule
-		Evaluation metrics    & \userknn - Weak Gen. & \userknn - Strong Gen. 
-		\\ \midrule
-		Number of Ratings			  & 736,944				&$1,121$ \\
-		Precision $\uparrow$          & $85.1$               & $85.0$
-		\\
-		Recall	$\uparrow$              & $79.5$               & $62.4$
-		\\
-		F1	$\uparrow$                  & $82.2$               & $72.0$
-		\\
-		AUC $\uparrow$					& $86.1$				& $88.7$
-		\\
-		Mean Abs. Error	$\downarrow$       & $8.55$             & $8.17$
-		\\
-		RMSE	$\downarrow$              & $11.8$              &$10.7$
-		$0.925$
-		\\
-		Optimization time	$\downarrow$ & 5 seconds
-		                              & 107 seconds
-		\\ \bottomrule
-	\end{tabular}
-	\caption{Evaluation of \userknn on a heldout
-		test set in weak generalization setting. $\uparrow$ means higher is better, and $\downarrow$
-		means lower is better.}
-	\label{tab:userknn-results}
+\begin{table*}[h]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+Evaluation metrics    & \userknn - Weak Gen. & \userknn -
+Strong Gen.
+\\ \midrule
+Number of Ratings			  & 736,944
+&$1,121$ \\
+Precision $\uparrow$	      & $85.1$		     & $85.0$
+\\
+Recall	$\uparrow$		& $79.5$	       & $62.4$
+\\
+F1	$\uparrow$		    & $82.2$		   &
+$72.0$
+\\
+AUC $\uparrow$					& $86.1$
+& $88.7$
+\\
+Mean Abs.
+Error $\downarrow$	   & $8.55$		& $8.17$ \\ RMSE $\downarrow$
+	   & $11.8$		&$10.7$ $0.925$ \\ Optimization time
+ $\downarrow$ & 5 seconds & 107 seconds \\ \bottomrule \end{tabular}
+ \caption{Evaluation of \userknn on a heldout test set in weak generalization
+ setting.
+$\uparrow$ means
+higher is better, and $\downarrow$
+means lower is better.}
+\label{tab:userknn-results}
 
 \end{table*}
 
-\paragraph*{\userknn.} We evaluate \userknn in both a weak generalization and strong
-generalization setting, utilizing both the original explicit feedback ratings and engineered
-implicit feedback. As noted above, the weak setting included 736,944 test predictions
-sampled randomly across all users and albums, while the strong setting involved just 10 
-randomly sampled users across all albums for a total of 1,121 test predictions. 
-The algorithm performs strongly in both the weak and strong generalization
-settings, with mean absolute error of 8.55 and 8.17 respectively. To evaluate the model's
-performance on implicit feedback data, all true ratings $\geq$ 75 were converted to 1, while
-all other ratings were converted to 0. Model predictions were also converted using the same
-threshold, though the ROC curve in figure X shows strong performance across different
-thresholds for model predictions with AUCs of 86.1 and 88.7 respectively. At the selected
-threshold, the model has comparable recall in the weak and strong settings at 85.1 and 85.0, 
-but the model has better recall in the weak setting. This could be due to the small sample
-size in the strong setting or the threshold selection. 
+\paragraph*{\userknn.}
+We evaluate \userknn in both a weak generalization and strong generalization
+ setting, utilizing both the original explicit feedback ratings and engineered
+ implicit feedback.
+As noted above, the weak setting included 736,944 test predictions sampled
+ randomly across all users and albums, while the strong setting involved just 10
+ randomly sampled users across all albums for a total of 1,121 test predictions.
 
-\section{Qualitative Analysis}
+The algorithm performs strongly in both the weak and strong generalization
+ settings, with mean absolute error of 8.55 and 8.17 respectively.
+To evaluate the model's performance on implicit feedback data, all true ratings
+ $\geq$ 75 were converted to 1, while all other ratings were converted to 0.
+Model predictions were also converted using the same threshold, though the ROC
+ curve in figure X shows strong performance across different thresholds for
+ model predictions with AUCs of 86.1 and 88.7 respectively.
+At the selected threshold, the model has comparable recall in the weak and
+ strong settings at 85.1 and 85.0, but the model has better recall in the weak
+ setting.
+This could be due to the small sample size in the strong setting or the
+ threshold selection.
 
 \newpage
 \bibliography{ref,yiming}
