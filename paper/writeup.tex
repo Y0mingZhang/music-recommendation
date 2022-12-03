@@ -255,7 +255,7 @@ the predictions as a whole.
 
 \begin{figure*}[h]
 	\centering
-	\begin{subfigure}[b]{0.4\textwidth}
+	\begin{subfigure}[b]{0.3\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{figures/recon-loss.pdf}
 		\caption{Convergence of stochastic gradient descent to optimal
@@ -263,10 +263,15 @@ the predictions as a whole.
 		\label{fig:convergence}
 	\end{subfigure}
 	% \hfill
-	\begin{subfigure}[b]{0.4\textwidth}
+	\begin{subfigure}[b]{0.3\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{figures/recon-loss.pdf}
 		\caption{\yiming{placeholder for new figures}.}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.3\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/user_knn_roc.png}
+		\caption{\userknn performance on different implicit feedback thresholds. Dots represent evaluated threshold.}
 	\end{subfigure}
 	\caption{}
 	\label{fig:1}
