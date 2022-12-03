@@ -59,7 +59,7 @@
 In this project, we study music recommendation using tools we learned in the
  class and Collaborative Filtering (CF) methods.
 Collaborative Filtering performs matrix completion by leveraging user-level and
- album-level similarities: for a set of $n$ users and $p$ items, the user-item
+ item-level similarities: for a set of $n$ users and $p$ items, the user-item
  matrix $\X$ takes the form of $\X = \mathbb{R}^{n \times p}$, with potentially
  missing values when no rating is available.
 Then, the recommendation problem boils down to identifying a set of ``good''
@@ -386,7 +386,7 @@ Error $\downarrow$	   & $8.55$		& $8.17$ \\ RMSE $\downarrow$
 \\ 
 Optimization time $\downarrow$ & 5 seconds & 107 seconds \\ \bottomrule \end{tabular}
  \caption{Evaluation of \userknn on a heldout test set in weak generalization
- setting.
+ and strong generalization settings.
 $\uparrow$ means
 higher is better, and $\downarrow$
 means lower is better.}
